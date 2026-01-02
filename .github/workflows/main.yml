@@ -30,8 +30,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: 运行签到
-      env:
-        ACCOUNTS: ${{ secrets.ACCOUNTS }}
-        IPS: ${{ secrets.IPS }}
+    - name: 运行
       run: python main.py
