@@ -77,6 +77,7 @@ def load_domain():
 
 def process_domain_workflow():
     saved_domain = load_domain()
+    saved_domain="k587.cc"
     if saved_domain:
         target_url = f"http://{saved_domain}/go.js"
         try:
