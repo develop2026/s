@@ -77,7 +77,6 @@ def load_domain():
 
 def process_domain_workflow():
     saved_domain = load_domain()
-    print(saved_domain)
     if saved_domain:
         target_url = f"http://{saved_domain}/go.js"
         try:
@@ -93,7 +92,7 @@ def process_domain_workflow():
                         flash_text = soup.select_one('p.flash-text')
                         if flash_text:
                             new_domain = first_domain(flash_text.text)
-                            if new_domain and is_valid_domain(new_domain) and new_domain != saved_domain:
+                            if new_domain and is_valid_domain(new_domain):
                                 return save_domain(new_domain)
                             else:
                                 return None
@@ -112,7 +111,6 @@ def process_domain_workflow():
 
 if __name__ == "__main__":
     final_domain = process_domain_workflow()
-    print(final_domain)
     if final_domain:
         print(f"成功提取域名: {final_domain}")
     else:
