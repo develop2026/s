@@ -83,6 +83,7 @@ def process_domain_workflow():
         try:
             resp = session.get(target_url)
             resp.encoding = resp.apparent_encoding
+            print(resp.status_code)
             if resp.status_code == 200:
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 flash_text = soup.select_one('p.flash-text')
