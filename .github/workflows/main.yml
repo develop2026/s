@@ -1,11 +1,11 @@
-name: A自动签到
+name: A
 
 on:
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/checkin.yml"
+      - ".github/workflows/main.yml"
       - "requirements.txt"
       - "main.py"
   schedule:
