@@ -16,7 +16,7 @@ def is_valid_url(url):
         return False
     url_pattern = r'^https?://[^\s/$.?#].[^\s]*$'
     return bool(re.match(url_pattern, url))
- 
+
 def is_valid_domain(domain):
     if not domain:
         return False
@@ -77,6 +77,7 @@ def load_domain():
 
 def process_domain_workflow():
     saved_domain = load_domain()
+    print(saved_domain)
     if saved_domain:
         target_url = f"http://{saved_domain}/go.js"
         try:
@@ -102,6 +103,7 @@ def process_domain_workflow():
 
 if __name__ == "__main__":
     final_domain = process_domain_workflow()
+    print(final_domain)
     if final_domain:
         print(f"成功提取域名: {final_domain}")
     else:
