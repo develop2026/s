@@ -83,14 +83,22 @@ def process_domain_workflow():
         try:
             resp = session.get(target_url)
             resp.encoding = resp.apparent_encoding
-            print(resp.status_code)
             if resp.status_code == 200:
-                soup = BeautifulSoup(resp.text, 'html.parser')
-                flash_text = soup.select_one('p.flash-text')
-                if flash_text:
-                    new_domain = first_domain(flash_text.text)
-                    if new_domain and is_valid_domain(new_domain) and new_domain != saved_domain:
-                        return save_domain(new_domain)
+                url = first_url(resp.text)
+                if url and is_valid_url(url):
+                    resp = session.get(url)
+                    resp.encoding = resp.apparent_encoding
+                    if resp.status_code == 200:
+                        soup = BeautifulSoup(resp.text, 'html.parser')
+                        flash_text = soup.select_one('p.flash-text')
+                        if flash_text:
+                            new_domain = first_domain(flash_text.text)
+                            if new_domain and is_valid_domain(new_domain) and new_domain != saved_domain:
+                                return save_domain(new_domain)
+                            else:
+                                return None
+                        else:
+                            return None
                     else:
                         return None
                 else:
