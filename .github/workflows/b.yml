@@ -1,11 +1,20 @@
-name: 使用 GitHub CLI 设置 Secrets
+name: B
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  manage-secrets:
+  run:
     runs-on: ubuntu-latest
 
     steps:
-    
+    - name: 检出仓库
+      uses: actions/checkout@v4
+
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
