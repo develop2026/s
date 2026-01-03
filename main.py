@@ -93,7 +93,7 @@ def process_domain_workflow():
                         if flash_text:
                             new_domain = first_domain(flash_text.text)
                             if new_domain and is_valid_domain(new_domain):
-                                return save_domain(new_domain)
+                                return new_domain
                             else:
                                 return None
                         else:
