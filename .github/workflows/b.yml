@@ -19,20 +19,16 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: 🔧 安装GitHub CLI并使用PAT登录
+    - name: 安装 GitHub CLI
+      uses: actions/setup-gh@v3
+      with:
+        version: 'latest'
+    
+    - name: 使用 PAT 登录
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}
       run: |
-        # 安装 GitHub CLI
-        type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install gh -y
-        
-        # 使用 PAT 登录
-        echo "${{ secrets.PAT }}" | gh auth login --with-token
-        
-        # 验证登录状态
+        gh auth setup-git
         gh auth status
 
 
