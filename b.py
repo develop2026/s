@@ -84,6 +84,7 @@ def v():
 load()
 v()
 for proxy, req_time, txt in successful_proxies:
+    print(proxy)
     ips.add(proxy)
     soup = BeautifulSoup(txt,'html.parser')
     trs = soup.tbody.find_all('tr')
