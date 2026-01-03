@@ -1,7 +1,10 @@
 import os, json, re, requests, ipaddress, time
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ips = set()
+jips = set()
+successful_proxies = []
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -42,27 +45,76 @@ def save():
     except Exception as e:
         pass
 
-proxy = "39.105.102.234:8080"
-proxies = {
-    'https': f'http://{proxy}',
-    'http': f'http://{proxy}'
-}
-url = "https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=&cunhuo=&dengji=&protocol=http&https=1&yys=&post=&px="
-#resp = requests.get(url,headers=headers, proxies=proxies, timeout=10)
-resp = requests.get(url,headers=headers, timeout=10)
-resp.encoding=resp.apparent_encoding
-if resp.ok:
-    soup = BeautifulSoup(resp.text,'html.parser')
-    trs = soup.tbody.find_all('tr')
-    for tr in trs:
-        v = tr.find_all('td')
-        if len(v) >= 3:
-            ip = v[1].get_text(strip=True)
-            port = v[2].get_text(strip=True)
-            isIp = validate_ip_port(ip, port)
-            if not isIp: continue
-            newIp = f"{ip}:{port}"
-            ips.add(newIp)
-            print(newIp)
+def load():
+    fileName = "ips.txt"
+    try:
+        with open(fileName, "r", encoding="utf-8") as f:
+            for line in f:
+                ip = line.strip()
+                if ":" not in ip or not ip: continue
+                newIp, newPort = ip.split(':', 1)
+                if not validate_ip_port(newIp, newPort): continue
+                jips.add(ip)
+    except Exception as e:
+        pass
 
-if ips: save()
+def verify(proxy):
+    target_url = 'https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=&cunhuo=&dengji=&protocol=http&https=1&yys=&post=&px='
+    proxies = {
+        'https': f'http://{proxy}',
+        'http': f'http://{proxy}'
+    }
+    start_time = time.time()
+    try:
+        response = requests.get(target_url, headers=headers, proxies=proxies, timeout=10)
+        return proxy, response.ok, int((time.time() - start_time) * 1000)
+    except:
+        return proxy, False, -1
+
+def v():
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(verify, proxy) for proxy in jips]
+        for future in as_completed(futures):
+            proxy, is_valid, requestTime = future.result()
+            if is_valid:
+                successful_proxies.append((proxy, requestTime))
+    successful_proxies.sort(key=lambda x: x[1])
+
+def pac(proxies = {}):
+    proxy = "39.105.102.234:8080"
+    proxies = {
+        'https': f'http://{proxy}',
+        'http': f'http://{proxy}'
+    }
+    url = "https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=&cunhuo=&dengji=&protocol=http&https=1&yys=&post=&px="
+    if proxies:
+        resp = requests.get(url,headers=headers, proxies=proxies, timeout=10)
+    else:
+        resp = requests.get(url,headers=headers, timeout=10)
+    resp.encoding=resp.apparent_encoding
+    if resp.ok:
+        soup = BeautifulSoup(resp.text,'html.parser')
+        trs = soup.tbody.find_all('tr')
+        for tr in trs:
+            v = tr.find_all('td')
+            if len(v) >= 3:
+                ip = v[1].get_text(strip=True)
+                port = v[2].get_text(strip=True)
+                isIp = validate_ip_port(ip, port)
+                if not isIp: continue
+                newIp = f"{ip}:{port}"
+                ips.add(newIp)
+                print(newIp)
+
+pac()
+if ips:
+    save()
+else:
+    load()
+    v()
+    for proxy, req_time in successful_proxies:
+        print(f"{proxy} - {req_time}ms")
+        pac()
+        if ips:
+            save() 
+            break
