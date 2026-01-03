@@ -33,5 +33,6 @@ jobs:
           gh --version
           echo "${{ secrets.PAT }}" | gh auth login --with-token
           gh auth status
+
     - name: 运行
-      run: python main.py
+      run: python b.py
