@@ -6,31 +6,9 @@ on:
 jobs:
   manage-secrets:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 安装 GitHub CLI
       uses: actions/setup-gh@v3
       with:
         version: 'latest'
-    
-    - name: 使用 PAT 登录
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}  # 需要在 GitHub 中先设置这个 Secret
-      run: |
-        # 登录到 GitHub CLI
-        gh auth setup-git
-        gh auth status
-        
-    - name: 设置其他 Secrets
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: |
-        # 示例：设置 Secret
-        echo "my-api-key-value" | gh secret set API_KEY
-        
-        # 批量设置
-        echo "db-password-123" | gh secret set DATABASE_PASSWORD
-        echo "aws-access-key" | gh secret set AWS_ACCESS_KEY
-        
-        # 列出所有 secrets
-        gh secret list
