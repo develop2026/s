@@ -113,7 +113,7 @@ else:
             'https': f'http://{proxy}',
             'http': f'http://{proxy}'
         }
-        pac()
+        pac(proxies)
         if ips:
             save() 
             break
