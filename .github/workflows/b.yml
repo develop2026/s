@@ -1,71 +1,29 @@
-name: Debug Authentication
+name: B
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  debug-auth:
+  run:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 检出仓库
       uses: actions/checkout@v4
 
     - name: 安装 GitHub CLI
       run: |
-        # 清理旧版本
-        sudo rm -rf /usr/local/bin/gh
-        sudo rm -rf /usr/share/keyrings/githubcli-archive-keyring.gpg
-        
-        # 安装最新版
         type -p curl >/dev/null || sudo apt install curl -y
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
         sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
         sudo apt update
         sudo apt install gh -y
-        
-        # 验证安装
-        gh --version
 
-    - name: 调试和登录
-      env:
-        GH_TOKEN: ${{ secrets.PAT }}
+    - name: 登录 GitHub
       run: |
-        echo "=== 调试信息 ==="
-        echo "GH_TOKEN 长度: ${#GH_TOKEN}"
-        echo "GH_TOKEN 前10位: ${GH_TOKEN:0:10}"
-        echo "当前目录: $(pwd)"
-        echo "用户: $(whoami)"
-        
-        # 方法1：直接设置环境变量
-        export GH_TOKEN="$GH_TOKEN"
-        
-        # 测试 API
-        echo -e "\n=== 测试 GitHub API ==="
-        curl -H "Authorization: token $GH_TOKEN" \
-             -H "Accept: application/vnd.github.v3+json" \
-             https://api.github.com/user
-        
-        echo -e "\n=== 尝试登录 ==="
-        
-        # 方法2：使用 gh auth login
-        echo "$GH_TOKEN" | gh auth login --with-token --hostname github.com
-        
-        echo -e "\n=== 验证登录状态 ==="
-        gh auth status || echo "gh auth status 失败"
-        
-        # 方法3：如果上述失败，使用配置文件
-        if ! gh auth status; then
-          echo -e "\n=== 使用配置文件 ==="
-          mkdir -p ~/.config/gh
-          cat > ~/.config/gh/hosts.yml << EOF
-          github.com:
-            oauth_token: $GH_TOKEN
-            git_protocol: https
-          EOF
-          gh auth status
-        fi
-        
-        echo -e "\n=== 测试 gh 命令 ==="
-        gh api /user --jq '.login' || echo "API 调用失败"
+        echo "${{ secrets.PAT }}" | gh auth login --with-token
+        gh auth status
