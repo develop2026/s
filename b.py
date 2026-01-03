@@ -67,53 +67,37 @@ def verify(proxy):
     start_time = time.time()
     try:
         response = requests.get(target_url, headers=headers, proxies=proxies, timeout=10)
-        return proxy, response.ok, int((time.time() - start_time) * 1000)
+        response.encoding=resp.apparent_encoding
+        return proxy, response.ok, int((time.time() - start_time) * 1000), response.text
     except:
-        return proxy, False, -1
+        return proxy, False, -1, ""
 
 def v():
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(verify, proxy) for proxy in jips]
         for future in as_completed(futures):
-            proxy, is_valid, requestTime = future.result()
+            proxy, is_valid, requestTime, txt = future.result()
             if is_valid:
-                successful_proxies.append((proxy, requestTime))
+                successful_proxies.append((proxy, requestTime, txt))
     successful_proxies.sort(key=lambda x: x[1])
 
-def pac(proxies = {}):
-    url = "https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=&cunhuo=&dengji=&protocol=http&https=1&yys=&post=&px="
-    if proxies:
-        resp = requests.get(url,headers=headers, proxies=proxies, timeout=10)
-    else:
-        resp = requests.get(url,headers=headers, timeout=10)
-    resp.encoding=resp.apparent_encoding
-    if resp.ok:
-        soup = BeautifulSoup(resp.text,'html.parser')
-        trs = soup.tbody.find_all('tr')
-        for tr in trs:
-            v = tr.find_all('td')
-            if len(v) >= 3:
-                ip = v[1].get_text(strip=True)
-                port = v[2].get_text(strip=True)
-                isIp = validate_ip_port(ip, port)
-                if not isIp: continue
-                newIp = f"{ip}:{port}"
-                ips.add(newIp)
-                print(newIp)
-
-pac()
+load()
+v()
+for proxy, req_time, txt in successful_proxies:
+    ips.add(proxy)
+    soup = BeautifulSoup(txt,'html.parser')
+    trs = soup.tbody.find_all('tr')
+    for tr in trs:
+        v = tr.find_all('td')
+        if len(v) >= 3:
+            ip = v[1].get_text(strip=True)
+            port = v[2].get_text(strip=True)
+            isIp = validate_ip_port(ip, port)
+            if not isIp: continue
+            newIp = f"{ip}:{port}"
+            ips.add(newIp)
+            print(newIp)
 if ips:
     save()
 else:
-    load()
-    v()
-    for proxy, req_time in successful_proxies:
-        print(f"{proxy} - {req_time}ms")
-        proxies = {
-            'https': f'http://{proxy}',
-            'http': f'http://{proxy}'
-        }
-        pac(proxies)
-        if ips:
-            save() 
-            break
+    print("空空如也")
