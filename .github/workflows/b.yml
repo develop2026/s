@@ -19,29 +19,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: 🔧 安装GitHub CLI，并使用PAT登录
-      env:
-        PAT: ${{ secrets.PAT }}
-      run: |
-        if [[ -z "$PAT" || "$PAT" == "" ]]; then
-          echo "请在仓库Settings -> Secrets and variables -> Actions中添加名为PAT的secret"
-          exit 1
-        fi
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install gh -y
-        gh --version
-        echo "$PAT" | gh auth login --with-token
-        gh auth status
-
     - name: 安装依赖
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: 运行
-      env:
-        GITHUB_REPOSITORY: ${{ github.repository }}
       run: python b.py
