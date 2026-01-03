@@ -81,11 +81,6 @@ def v():
     successful_proxies.sort(key=lambda x: x[1])
 
 def pac(proxies = {}):
-    proxy = "39.105.102.234:8080"
-    proxies = {
-        'https': f'http://{proxy}',
-        'http': f'http://{proxy}'
-    }
     url = "https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=&cunhuo=&dengji=&protocol=http&https=1&yys=&post=&px="
     if proxies:
         resp = requests.get(url,headers=headers, proxies=proxies, timeout=10)
@@ -114,6 +109,10 @@ else:
     v()
     for proxy, req_time in successful_proxies:
         print(f"{proxy} - {req_time}ms")
+        proxies = {
+            'https': f'http://{proxy}',
+            'http': f'http://{proxy}'
+        }
         pac()
         if ips:
             save() 
