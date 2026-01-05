@@ -1,13 +1,6 @@
 name: A
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/main.yml"
-      - "requirements.txt"
-      - "main.py"
   schedule:
     - cron: '0 0,8,16 * * *'
   workflow_dispatch:
