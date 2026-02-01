@@ -32,9 +32,9 @@ jobs:
     - name: Auto green
         run: |
           sleep 60
-          git config --local user.email "2752813969@qq.com"
-          git config --local user.name "liangshengmoran"
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git config --local user.email "bot@github.com"
+          git config --local user.name "bot"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.PAT }}@github.com/${{ github.repository }}
           git pull --rebase
           git commit --allow-empty -m "a commit a day keeps your girlfriend stay"
           git push
