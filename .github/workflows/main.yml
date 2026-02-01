@@ -1,9 +1,8 @@
 name: A
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 0,8,16 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,13 +27,3 @@ jobs:
         
     - name: 运行
       run: python main.py
-
-    - name: Auto green
-      run: |
-        sleep 60
-        git config --local user.email "bot@github.com"
-        git config --local user.name "bot"
-        git remote set-url origin https://${{ github.actor }}:${{ secrets.PAT }}@github.com/${{ github.repository }}
-        git pull --rebase
-        git commit --allow-empty -m "a commit a day keeps your girlfriend stay"
-        git push
