@@ -12,8 +12,6 @@ jobs:
     steps:
     - name: 检出仓库
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PAT }}
 
     - name: 设置Python
       uses: actions/setup-python@v4
