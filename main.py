@@ -115,4 +115,5 @@ if __name__ == "__main__":
     if final_domain:
         print(f"成功提取域名: {final_domain}")
     else:
+        print("失败")
         exit(1)
