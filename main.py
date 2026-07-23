@@ -30,22 +30,9 @@ def is_valid_domain(domain):
 def first_url(html):
     soup = BeautifulSoup(html, 'html.parser')
 
-    # 定位目标标签
-    p = soup.find('p', class_='flash-text')
-    if not p:
-        return None
+    script = soup.find('p', class_='flash-text').find('script')
+    domain = script.next_sibling.strip()
 
-    # 拿到纯文本（JS 内容也会变成普通文本）
-    text = p.get_text(strip=False)
-
-    # 匹配：数字.域名 或 直接域名
-    match = re.search(r'(\d+\.)?[\w\-]+\.\w+', text)
-    if not match:
-        return None
-
-    domain = match.group(0)
-
-    # 补齐协议
     if not domain.startswith(('http://', 'https://')):
         domain = f'https://{domain}'
 
