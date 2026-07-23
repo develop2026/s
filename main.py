@@ -27,7 +27,34 @@ def is_valid_domain(domain):
         return True
     return False
 
-def first_url(text):
+def first_url(html):
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # 定位目标标签
+    p = soup.find('p', class_='flash-text')
+    if not p:
+        return None
+
+    # 拿到纯文本（JS 内容也会变成普通文本）
+    text = p.get_text(strip=True)
+
+    # 去掉中文前缀
+    text = re.sub(r'^最新網址：', '', text)
+
+    # 匹配：数字.域名 或 直接域名
+    match = re.search(r'(\d+\.)?[\w\-]+\.\w+', text)
+    if not match:
+        return None
+
+    domain = match.group(0)
+
+    # 补齐协议
+    if not domain.startswith(('http://', 'https://')):
+        domain = f'https://{domain}'
+
+    return domain
+
+def first_url2(text):
     pattern = r'["\'](https?://[^\s/$.?#].[^\s]*)["\']'
     match = re.search(pattern, text)
     if match:
