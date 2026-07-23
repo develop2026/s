@@ -29,13 +29,12 @@ def is_valid_domain(domain):
 
 def first_url(html):
     soup = BeautifulSoup(html, 'html.parser')
-
-    script = soup.find('p', class_='flash-text').find('script')
-    domain = script.next_sibling.strip()
-
+    tag = soup.find('p', class_='flash-text')
+    script_text = tag.script.string
+    print("JS代码:", script_text.strip())
+    domain = tag.script.next_sibling.strip()
     if not domain.startswith(('http://', 'https://')):
         domain = f'https://{domain}'
-
     return domain
 
 def first_url2(text):
