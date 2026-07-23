@@ -78,42 +78,56 @@ def load_domain():
 
 def process_domain_workflow():
     saved_domain = load_domain()
-    if saved_domain:
-        target_url = f"http://{saved_domain}/go.js"
-        try:
-            resp = session.get(target_url)
-            resp.encoding = resp.apparent_encoding
-            if resp.status_code == 200:
-                url = first_url(resp.text)
-                if url and is_valid_url(url):
-                    resp = session.get(url)
-                    resp.encoding = resp.apparent_encoding
-                    if resp.status_code == 200:
-                        soup = BeautifulSoup(resp.text, 'html.parser')
-                        flash_text = soup.select_one('p.flash-text')
-                        if flash_text:
-                            new_domain = first_domain(flash_text.text)
-                            if new_domain and is_valid_domain(new_domain) and save_domain(new_domain):
-                                return new_domain
-                            else:
-                                return None
-                        else:
-                            return None
-                    else:
-                        return None
-                else:
-                    return None
-            else:
-                return None
-        except Exception as e:
-            return None
-    else:
-        return None
+    if not saved_domain:
+        return False, "未找到已保存的域名"
+
+    target_url = f"http://{saved_domain}/go.js"
+
+    try:
+        # 第一步：请求 go.js
+        resp = session.get(target_url, timeout=10)
+        resp.encoding = resp.apparent_encoding
+
+        if resp.status_code != 200:
+            return False, f"请求 go.js 失败，状态码: {resp.status_code}"
+
+        url = first_url(resp.text)
+        if not url or not is_valid_url(url):
+            return False, "go.js 中未解析到有效 URL"
+
+        # 第二步：请求解析到的真实地址
+        resp = session.get(url, timeout=10)
+        resp.encoding = resp.apparent_encoding
+
+        if resp.status_code != 200:
+            return False, f"请求目标页面失败，状态码: {resp.status_code}"
+
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        flash_text = soup.select_one('p.flash-text')
+        if not flash_text:
+            return False, "页面中未找到 p.flash-text 元素"
+
+        new_domain = first_domain(flash_text.text)
+        if not new_domain or not is_valid_domain(new_domain):
+            return False, "flash-text 中未解析到合法域名"
+
+        if not save_domain(new_domain):
+            return False, "新域名解析成功，但保存失败"
+
+        return True, new_domain
+
+    except requests.exceptions.Timeout:
+        return False, "请求超时"
+    except requests.exceptions.RequestException as e:
+        return False, f"网络请求异常: {e}"
+    except Exception as e:
+        return False, f"未知错误: {e}"
+
 
 if __name__ == "__main__":
-    final_domain = process_domain_workflow()
-    if final_domain:
-        print(f"成功提取域名: {final_domain}")
+    state,data = process_domain_workflow()
+    if state:
+        print("成功提取域名:", data)
     else:
-        print("失败")
+        print("失败原因:", data)
         exit(1)
