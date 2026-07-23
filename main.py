@@ -36,10 +36,7 @@ def first_url(html):
         return None
 
     # 拿到纯文本（JS 内容也会变成普通文本）
-    text = p.get_text(strip=True)
-
-    # 去掉中文前缀
-    text = re.sub(r'^最新網址：', '', text)
+    text = p.get_text(strip=False)
 
     # 匹配：数字.域名 或 直接域名
     match = re.search(r'(\d+\.)?[\w\-]+\.\w+', text)
