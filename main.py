@@ -117,7 +117,7 @@ def process_domain_workflow():
 
         url = first_url(resp.text)
         if not url or not is_valid_url(url):
-            return False, "go.js 中未解析到有效 URL"
+            return False, f"go.js 中未解析到有效 URL {url}"
 
         # 第二步：请求解析到的真实地址
         resp = session.get(url, timeout=10)
