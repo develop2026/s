@@ -27,16 +27,25 @@ def is_valid_domain(domain):
         return True
     return False
 
-def first_url(html):
-    soup = BeautifulSoup(html, "html.parser")
-    p = soup.find("p", class_="flash-text")
-    text = p.get_text()
-    m = re.search(r'([a-z0-9\-]+\.[a-z]{2,})', text)
-    domain = m.group(1) if m else None
-    if not domain.startswith(('http://', 'https://')):
-        domain = f'https://{domain}'
-    return domain
+import re
+from bs4 import BeautifulSoup
 
+def first_url(text):
+    soup = BeautifulSoup(text, "html.parser")
+    p_list = soup.select("p.flash-text")
+    domain_pattern = re.compile(
+        r'(?:https?://)?'
+        r'([a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?'
+        r'(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*'
+        r'\.[a-zA-Z]{2,})'
+    )
+    for p in p_list:
+        txt = p.get_text(strip=True)
+        m = domain_pattern.search(txt)
+        if m:
+            domain = m.group(1)
+            return f"https://{domain}"
+    return None
 
 def first_url2(text):
     pattern = r'["\'](https?://[^\s/$.?#].[^\s]*)["\']'
