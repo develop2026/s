@@ -27,9 +27,6 @@ def is_valid_domain(domain):
         return True
     return False
 
-import re
-from bs4 import BeautifulSoup
-
 def first_url(text):
     soup = BeautifulSoup(text, "html.parser")
     p_list = soup.select("p.flash-text")
