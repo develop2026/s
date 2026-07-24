@@ -28,30 +28,13 @@ def is_valid_domain(domain):
     return False
 
 def first_url(html):
-    soup = BeautifulSoup(html, 'html.parser')
-
-    tag = soup.find('p', class_='flash-text')
-    if not tag:
-        raise ValueError("未找到 class='flash-text' 的 p 标签")
-
-    if not tag.script:
-        raise ValueError("flash-text 内未找到 script 标签")
-
-    script_text = tag.script.string
-    print("JS代码:", script_text.strip())
-
-    domain = tag.script.next_sibling
-    if not domain:
-        raise ValueError("script 后未找到域名文本")
-
-    domain = domain.strip()
-
-    # 只保留域名部分（防止混入换行、注释）
-    domain = re.sub(r'^[^a-zA-Z0-9]', '', domain)
-
+    soup = BeautifulSoup(html, "html.parser")
+    p = soup.find("p", class_="flash-text")
+    text = p.get_text()
+    m = re.search(r'([a-z0-9\-]+\.[a-z]{2,})', text)
+    domain = m.group(1) if m else None
     if not domain.startswith(('http://', 'https://')):
         domain = f'https://{domain}'
-
     return domain
 
 
