@@ -1,3 +1,4 @@
 requests==2.32.5
 bs4~=0.0.2
 requests-html==0.10.0
+lxml<5.0.0
